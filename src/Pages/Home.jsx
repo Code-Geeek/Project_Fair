@@ -1,10 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import bgimg from "../Assets/4380.jpg";
 import ProjectCard from "../Components/ProjectCard";
 import { Link } from "react-router-dom";
+import { homeprojectAPI } from "../Services/allAPI";
+
 
 function Home() {
+  const [loggedin,setLoggedin]=useState(false)
+  const [ homeProjects,setHomeProjects] = useState([])
+ 
+  const getHomeProjects = async ()=>{
+    const result = await homeprojectAPI()
+    if(result.status===200){
+      setHomeProjects(result.data)
+    }else{
+      console.log(result);
+      console.log(result.response.data);
+    }
+  }
+
+console.log(homeProjects);
+  useEffect(()=>{
+    if(sessionStorage.getItem("token")){
+      setLoggedin(true)
+    }else{
+      setLoggedin(false)
+    }
+
+    // api call 
+    getHomeProjects()
+  },[])
+
   return (
     <>
       {/* landing section */}
@@ -23,10 +50,10 @@ function Home() {
               labore beatae ex possimus corrupti ducimus in quibusdam rerum? Vel
               dolore incidunt eum error.
             </p>
-            <button className="btn btn-warning">
-              Start to explore{" "}
-              <i class="fa-solid fa-right-long fa-beat ms-2"></i>
-            </button>
+            { loggedin?
+               <Link className="btn btn-warning" style={{textDecoration:'none',color:'white'}} to={'/dashboard'}> Manage your projects <i class="fa-solid fa-right-long fa-beat ms-2"></i></Link>:
+               <Link className="btn btn-warning" style={{textDecoration:'none',color:'white'}} to={'/login'}> Start to explore <i class="fa-solid fa-right-long fa-beat ms-2"></i></Link>
+            }
           </Col>
           <Col sm={12} md={6}>
             <img
@@ -43,18 +70,17 @@ function Home() {
         <h1 className="text-center mb-5">Explore Our Projects</h1>
         <marquee scrollAmount={25}>
           <div className="d-flex">
-            <div style={{width:"500px"}}>
-              <ProjectCard/>
-            </div>
-            <div style={{width:"500px"}}>
-              <ProjectCard/>
-            </div>
-            <div style={{width:"500px"}}>
-              <ProjectCard/>
-            </div>
+            {
+            
+             homeProjects?.length>0?homeProjects.map(project=>(
+              <div style={{width:"500px"}}>
+                <ProjectCard project={project}/>
+              </div>
+            )):null
+              }
           </div>
         </marquee>
-        <div className="text-center mt-5"><Link to={'/projects'}/>View More Projects</div>
+        <div className="text-center  mt-5"><Link style={{textDecoration:'none',color:"red"}} to={'/project'}>View More Projects</Link></div>
       </div>
     </>
   );
