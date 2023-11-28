@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate} from "react-router-dom";
 import loginpic from "../Assets/20944201.jpg";
 import { Form } from "react-bootstrap";
 import { loginAPI, registerAPI } from "../Services/allAPI";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { tokenAuthorizationContext } from "../Contexts/TokenAuth";
 
 function Auth({ register }) {
+  const {isAuthorized,setIsAuthorized}= useContext(tokenAuthorizationContext)
   const navigate = useNavigate()
   const [userData,setUserData]=useState({
     username:"",email:"",password:""
@@ -24,6 +26,7 @@ function Auth({ register }) {
         // toast.success(`${result.data.username} has registered successfully`)
         sessionStorage.setItem("existingUser",JSON.stringify(result.data.existingUser))
         sessionStorage.setItem("token",result.data.token)
+        setIsAuthorized(true)
         setUserData({
           email:"",password:""
         })
